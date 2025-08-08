@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 from typing import List
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -7,7 +8,8 @@ from openai import OpenAI
 load_dotenv()
 
 class GPT5Chat:
-    def __init__(self):
+    def __init__(self, debug=False):
+        self.debug = debug
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key or api_key == 'your_openai_api_key_here':
             print("Error: Please set your OpenAI API key in the .env file")
@@ -21,6 +23,14 @@ class GPT5Chat:
         self.text_format = os.getenv('TEXT_FORMAT', 'text')  # text, json_object, json_schema
         self.reasoning_effort = os.getenv('REASONING_EFFORT', 'medium')  # minimal, low, medium, high
         self.conversation_history: List[str] = []
+        
+        if self.debug:
+            print(f"[DEBUG] Initialized with:")
+            print(f"  Model: {self.model}")
+            print(f"  Max tokens: {self.max_tokens}")
+            print(f"  Verbosity: {self.verbosity}")
+            print(f"  Text format: {self.text_format}")
+            print(f"  Reasoning effort: {self.reasoning_effort}")
         
         self.system_prompt = """You are an advanced AI assistant powered by GPT-5. The user's name is Peter. 
         You have enhanced reasoning capabilities and can provide detailed, thoughtful responses. 
@@ -42,21 +52,60 @@ class GPT5Chat:
             elif msg.startswith("Assistant:"):
                 messages.append({"role": "assistant", "content": msg[11:].strip()})
         
+        if self.debug:
+            print(f"\n[DEBUG] Sending request with {len(messages)} messages")
+            print(f"[DEBUG] Last message: {messages[-1]}")
+            print(f"[DEBUG] Total conversation history items: {len(self.conversation_history)}")
+        
         try:
+            if self.debug:
+                print(f"[DEBUG] Making API call to {self.model}...")
+            
             # GPT-5 uses standard chat completions with additional parameters
             # Note: GPT-5 only supports default temperature (1)
+            # Increase max_completion_tokens to account for reasoning tokens
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                max_completion_tokens=self.max_tokens
+                max_completion_tokens=self.max_tokens * 3  # Increase to handle reasoning + output
             )
             
+            if self.debug:
+                print(f"[DEBUG] Response received:")
+                print(f"  Model: {response.model}")
+                print(f"  Usage: {response.usage}")
+                print(f"  Finish reason: {response.choices[0].finish_reason}")
+                if hasattr(response.usage, 'completion_tokens_details'):
+                    details = response.usage.completion_tokens_details
+                    if hasattr(details, 'reasoning_tokens'):
+                        print(f"  Reasoning tokens used: {details.reasoning_tokens}")
+                        print(f"  Output tokens: {response.usage.completion_tokens - details.reasoning_tokens}")
+            
             assistant_message = response.choices[0].message.content
+            
+            if assistant_message is None:
+                if self.debug:
+                    print(f"[DEBUG] WARNING: Received None response")
+                    print(f"[DEBUG] Full response object: {response}")
+                return "[No response received from API]"
+            
             self.add_message(f"Assistant: {assistant_message}")
+            
+            if self.debug:
+                print(f"[DEBUG] Response content length: {len(assistant_message)} chars")
+            
             return assistant_message
             
         except Exception as e:
             error_msg = str(e)
+            
+            if self.debug:
+                print(f"\n[DEBUG] API Error occurred:")
+                print(f"  Error type: {type(e).__name__}")
+                print(f"  Error message: {error_msg}")
+                import traceback
+                print(f"[DEBUG] Full traceback:")
+                traceback.print_exc()
             
             # Handle quota errors
             if "insufficient_quota" in error_msg or "429" in error_msg:
@@ -104,5 +153,11 @@ class GPT5Chat:
                 print(f"\nError: {str(e)}")
 
 if __name__ == "__main__":
-    chat = GPT5Chat()
+    # Check for debug flag
+    debug_mode = '--debug' in sys.argv or os.getenv('DEBUG', '').lower() == 'true'
+    
+    if debug_mode:
+        print("[DEBUG] Debug mode enabled")
+    
+    chat = GPT5Chat(debug=debug_mode)
     chat.run()

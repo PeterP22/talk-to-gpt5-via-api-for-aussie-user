@@ -73,6 +73,12 @@ Run the application:
 python main.py
 ```
 
+Run with debug mode to see detailed API calls and responses:
+```bash
+python main.py --debug
+# or set DEBUG=true in your .env file
+```
+
 ### Commands
 
 - Type your message and press Enter to chat
