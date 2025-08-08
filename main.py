@@ -30,26 +30,28 @@ class GPT5Chat:
         self.conversation_history.append(content)
     
     def get_response(self, user_input: str) -> str:
-        # Build the full prompt with conversation history
-        full_prompt = self.system_prompt + "\n\n"
+        self.add_message(f"Peter: {user_input}")
+        
+        # Build messages for chat completion
+        messages = [{"role": "system", "content": self.system_prompt}]
+        
+        # Add conversation history
         for msg in self.conversation_history:
-            full_prompt += msg + "\n"
-        full_prompt += f"Peter: {user_input}\nAssistant:"
+            if msg.startswith("Peter:"):
+                messages.append({"role": "user", "content": msg[7:].strip()})
+            elif msg.startswith("Assistant:"):
+                messages.append({"role": "assistant", "content": msg[11:].strip()})
         
         try:
-            # GPT-5 uses the new responses endpoint
-            response = self.client.responses.create(
+            # GPT-5 uses standard chat completions with additional parameters
+            # Note: GPT-5 only supports default temperature (1)
+            response = self.client.chat.completions.create(
                 model=self.model,
-                input=full_prompt,
-                text={
-                    "verbosity": self.verbosity,
-                    "format": self.text_format
-                },
-                reasoning_effort=self.reasoning_effort
+                messages=messages,
+                max_completion_tokens=self.max_tokens
             )
             
-            assistant_message = response.choices[0].text
-            self.add_message(f"Peter: {user_input}")
+            assistant_message = response.choices[0].message.content
             self.add_message(f"Assistant: {assistant_message}")
             return assistant_message
             

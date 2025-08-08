@@ -55,10 +55,16 @@ You can customize the following parameters in your `.env` file:
 |-----------|---------|---------|-------------|
 | `MODEL_NAME` | gpt-5, gpt-5-mini, gpt-5-nano | gpt-5 | The GPT-5 model variant to use |
 | `MAX_TOKENS` | Integer | 2000 | Maximum tokens in response |
-| `TEMPERATURE` | 0.0 - 2.0 | 0.7 | Response creativity/randomness |
+| ~~`TEMPERATURE`~~ | ~~0.0 - 2.0~~ | ~~1.0~~ | **Not supported in GPT-5 (only default value of 1.0 works)** |
 | `VERBOSITY` | low, medium, high | medium | Response detail level |
 | `TEXT_FORMAT` | text, json_object, json_schema | text | Output format |
 | `REASONING_EFFORT` | minimal, low, medium, high | medium | Reasoning depth |
+
+### Note on GPT-5 Limitations
+
+GPT-5 currently has some API limitations compared to previous models:
+- **Temperature**: Only supports the default value (1.0). Custom temperature values will cause an error.
+- The model uses the standard `chat.completions` endpoint, not a new specialized endpoint.
 
 ## Usage
 
