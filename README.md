@@ -1,6 +1,10 @@
 # GPT-5 Chat Application 🤖
 
-A simple Python application to interact with OpenAI's GPT-5 model via API. Features a personalized chat interface with Australian-friendly greetings and full support for GPT-5's advanced parameters.
+A simple Python application to interact with OpenAI's GPT-5 model via API. Features a personalized chat interface with full support for GPT-5's advanced parameters.
+
+## Why I Built This
+
+On GPT-5's release day, I didn't have web access but still wanted to use the new model. So I quickly built this lightweight API client to chat with GPT-5 directly from the terminal. Simple, fast, and gets the job done!
 
 ## Features
 
@@ -74,9 +78,9 @@ python main.py
 
 ```
 $ python main.py
-G'day Peter! Connected to gpt-5
-I'm here to help you with any questions you have.
-Type 'exit' to quit, 'clear' to reset conversation
+GPT-5 Assistant initialized. Model: gpt-5
+Ready to assist with your queries, Peter.
+Commands: 'exit' to quit, 'clear' to reset conversation
 --------------------------------------------------
 
 Peter: What's the best way to learn Python?

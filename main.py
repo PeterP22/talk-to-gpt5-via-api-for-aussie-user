@@ -22,9 +22,9 @@ class GPT5Chat:
         self.reasoning_effort = os.getenv('REASONING_EFFORT', 'medium')  # minimal, low, medium, high
         self.conversation_history: List[str] = []
         
-        self.system_prompt = """You are a helpful AI assistant. The user's name is Peter. 
-        Always address him by name when appropriate. You're here to assist Peter with 
-        any questions or tasks he has. Be friendly, knowledgeable, and helpful."""
+        self.system_prompt = """You are an advanced AI assistant powered by GPT-5. The user's name is Peter. 
+        You have enhanced reasoning capabilities and can provide detailed, thoughtful responses. 
+        Be intelligent, precise, and helpful in assisting Peter with any questions or tasks."""
         
     def add_message(self, content: str):
         self.conversation_history.append(content)
@@ -71,9 +71,9 @@ class GPT5Chat:
         print("Conversation history cleared.")
     
     def run(self):
-        print(f"G'day Peter! Connected to {self.model}")
-        print("I'm here to help you with any questions you have.")
-        print("Type 'exit' to quit, 'clear' to reset conversation")
+        print(f"GPT-5 Assistant initialized. Model: {self.model}")
+        print("Ready to assist with your queries, Peter.")
+        print("Commands: 'exit' to quit, 'clear' to reset conversation")
         print("-" * 50)
         
         while True:
@@ -81,7 +81,7 @@ class GPT5Chat:
                 user_input = input("\nPeter: ").strip()
                 
                 if user_input.lower() == 'exit':
-                    print("See you later, Peter!")
+                    print("Session terminated. Goodbye, Peter.")
                     break
                 
                 if user_input.lower() == 'clear':
@@ -96,7 +96,7 @@ class GPT5Chat:
                 print(response)
                 
             except KeyboardInterrupt:
-                print("\n\nSee you later, Peter!")
+                print("\n\nSession interrupted. Goodbye, Peter.")
                 break
             except Exception as e:
                 print(f"\nError: {str(e)}")
